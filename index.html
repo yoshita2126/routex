@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#f6f8f5" />
+  <meta name="description" content="Plan a route between any two places with RouteX." />
+  <title>RouteX | Smart Route Planner</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <div class="app-shell" id="home">
+    <header class="topbar">
+      <a class="brand" href="#home" aria-label="RouteX home">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32" fill="none">
+            <path d="M7 25.5 13.8 6l4.1 12.1L25 6.5" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"
+              stroke-linejoin="round" />
+            <circle cx="7" cy="25" r="3" fill="#E2744B" />
+            <circle cx="25" cy="6.5" r="3" fill="#E2744B" />
+          </svg>
+        </span>
+        <span class="brand-copy"><strong>RouteX</strong><span>Smart Route Planner</span></span>
+      </a>
+      <nav class="main-nav" aria-label="Main navigation">
+        <a class="nav-link active" href="#home">Home</a>
+        <a class="nav-link" href="#planner">Routes</a>
+        <a class="nav-link" href="#about">About</a>
+      </nav>
+      <div class="service-indicator"><span class="live-dot"></span> Live map data</div>
+    </header>
+
+    <main class="workspace" id="planner">
+      <div class="sidebar-column">
+        <aside class="planner-panel" aria-label="Route planner">
+          <div class="panel-heading">
+            <span class="eyebrow">YOUR NEXT JOURNEY</span>
+            <h1>Where to next?</h1>
+            <p>Find your way from here to there.</p>
+          </div>
+
+          <form id="route-form" class="route-form" novalidate>
+            <div class="location-fields">
+              <span class="journey-line" aria-hidden="true"></span>
+              <label class="field-group" for="start-input">
+                <span class="field-marker start-marker" aria-hidden="true"></span>
+                <span class="field-content">
+                  <span class="field-label">STARTING POINT</span>
+                  <div class="field-with-action">
+                    <input id="start-input" name="start" type="text" placeholder="Enter starting location"
+                      autocomplete="street-address" />
+                    <button class="pin-button" type="button" data-endpoint="start">Pin on map</button>
+                  </div>
+                </span>
+              </label>
+              <label class="field-group" for="destination-input">
+                <span class="field-marker end-marker" aria-hidden="true"></span>
+                <span class="field-content">
+                  <span class="field-label">DESTINATION</span>
+                  <div class="field-with-action">
+                    <input id="destination-input" name="destination" type="text" placeholder="Enter destination"
+                      autocomplete="street-address" />
+                    <button class="pin-button" type="button" data-endpoint="destination">Pin on map</button>
+                  </div>
+                </span>
+              </label>
+            </div>
+            <div class="travel-mode-row">
+              <label class="mode-picker" for="travel-mode">
+                <span class="mode-label">Mode</span>
+                <select id="travel-mode" name="travel-mode">
+                  <option value="driving">Car</option>
+                  <option value="cycling">Bike</option>
+                  <option value="walking">Walking</option>
+                  <option value="bus">Bus</option>
+                </select>
+              </label>
+            </div>
+            <button class="primary-button" id="find-button" type="submit">
+              <span class="button-label">Find Route</span>
+              <svg class="button-arrow" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                <path d="M4 10h11m-4-4 4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                  stroke-linejoin="round" />
+              </svg>
+              <span class="spinner" aria-hidden="true"></span>
+            </button>
+            <div class="secondary-actions">
+              <button class="text-button" type="button" id="location-button">
+                <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                  <path d="M10 17s5-4.6 5-9a5 5 0 1 0-10 0c0 4.4 5 9 5 9Z" stroke="currentColor" stroke-width="1.5" />
+                  <circle cx="10" cy="8" r="1.7" stroke="currentColor" stroke-width="1.5" />
+                </svg>
+                Use my location
+              </button>
+              <button class="text-button clear-button" type="button" id="clear-button">Clear</button>
+            </div>
+          </form>
+
+          <div class="feedback" id="feedback" role="status" aria-live="polite" hidden></div>
+
+          <div class="panel-footnote"><span class="footnote-icon" aria-hidden="true">✳</span><span>Thoughtful routes,
+              powered by open map data.</span></div>
+        </aside>
+        <section class="route-card" id="route-card" aria-labelledby="route-card-title" hidden>
+          <div class="route-card-heading">
+            <div><span class="eyebrow">YOUR ROUTE</span>
+              <h2 id="route-card-title">Journey details</h2>
+            </div>
+            <span class="status-pill"><span class="status-dot"></span> Route found</span>
+          </div>
+          <div class="route-stats">
+            <div class="stat-block"><span class="stat-icon distance-icon" aria-hidden="true">↗</span><span
+                class="stat-label">DISTANCE</span><strong id="distance-value">—</strong></div>
+            <div class="stat-block"><span class="stat-icon time-icon" aria-hidden="true">◷</span><span
+                class="stat-label">EST. TRAVEL TIME</span><strong id="duration-value">—</strong></div>
+            <div class="stat-block vehicle-block"><span class="stat-icon vehicle-icon" aria-hidden="true">⬢</span><span
+                class="stat-label">VEHICLE</span><strong id="vehicle-value">Driving</strong></div>
+          </div>
+          <div class="route-places">
+            <div class="place-row"><span class="place-dot start-dot" aria-hidden="true"></span>
+              <div><span class="place-label">FROM</span><strong id="start-name"></strong></div>
+            </div>
+            <div class="place-row"><span class="place-dot end-dot" aria-hidden="true"></span>
+              <div><span class="place-label">TO</span><strong id="destination-name"></strong></div>
+            </div>
+          </div>
+          <div class="route-meta" id="route-meta">Route from selected location</div>
+        </section>
+      </div>
+
+      <section class="map-panel" aria-label="Route map">
+        <div class="map-topline"><span class="map-heading">EXPLORE THE MAP</span><span class="map-coordinates"
+            id="map-caption">Search a place to get started</span></div>
+        <div id="map" role="application" aria-label="Interactive map showing your route"></div>
+        <div class="map-legend" aria-label="Map legend"><span><i class="legend-dot origin"></i>Start</span><span><i
+              class="legend-dot destination"></i>Destination</span></div>
+        <div class="map-credit">Map data © <a href="https://www.openstreetmap.org/copyright" target="_blank"
+            rel="noreferrer">OpenStreetMap</a> contributors</div>
+      </section>
+    </main>
+
+    <footer class="site-footer" id="about"><span>RouteX <span class="footer-separator">/</span> Plan a little
+        further.</span><span>Built with OpenStreetMap &amp; OSRM</span></footer>
+  </div>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="script.js"></script>
+</body>
+
+</html>

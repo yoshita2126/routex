@@ -1,0 +1,28 @@
+{
+  "name": "routex-mern",
+  "version": "1.0.0",
+  "description": "RouteX - MERN Stack Route Planner with MongoDB Authentication",
+  "main": "server/server.js",
+  "scripts": {
+    "start": "node server/server.js",
+    "server": "node --watch server/server.js",
+    "client": "npm --prefix client run dev",
+    "build": "npm --prefix client run build",
+    "seed": "node server/seed.js",
+    "install:all": "npm install && npm --prefix server install && npm --prefix client install"
+  },
+  "keywords": [
+    "mern",
+    "mongodb",
+    "express",
+    "react",
+    "node",
+    "route-planner",
+    "osrm",
+    "leaflet",
+    "auth"
+  ],
+  "author": "",
+  "license": "ISC"
+}
+
